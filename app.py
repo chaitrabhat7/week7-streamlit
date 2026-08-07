@@ -75,6 +75,12 @@ st.title("🧮 Archimedes")
 st.subheader(f"Your CBSE {grade} Maths Tutor")
 st.divider()
 
+# --- Chapter indicator ---
+if st.session_state.get("loaded_file"):
+    st.success(f"📖 Answering from: **{st.session_state.loaded_file}**")
+else:
+    st.warning("⚠️ No chapter uploaded — Archimedes is using general knowledge. Upload a chapter PDF from the sidebar for focused practice.")
+
 # --- Display chat history ---
 for message in st.session_state.messages:
     st.chat_message(message["role"]).write(message["content"])
@@ -111,10 +117,9 @@ if user_input:
     with st.spinner("Archimedes is thinking..."):
         # Build system prompt based on whether a file is uploaded
         if chapter_text:
-            active_system = SYSTEM_PROMPT + f"\n\nThe student is in {grade}. Answer ONLY from this chapter content:\n\n{chapter_text}"
+            active_system = SYSTEM_PROMPT + f"\n\nThe student is in {grade}. You are answering STRICTLY from this uploaded chapter: '{st.session_state.loaded_file}'.\nContent:\n{chapter_text}\n\nAlways remind the student which chapter you are teaching from if they seem confused."
         else:
-            active_system = SYSTEM_PROMPT + f"\n\nThe student is currently in {grade}. Tailor all explanations to that level."
-
+            active_system = SYSTEM_PROMPT + f"\n\nThe student is in {grade}. No chapter is uploaded. Use your general NCERT knowledge."
         response = client.messages.create(
             model="claude-haiku-4-5",
             max_tokens=500,
